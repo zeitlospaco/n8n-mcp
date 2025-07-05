@@ -65,13 +65,16 @@ ENV IS_DOCKER=true
 # Expose HTTP port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Health check (no auth required for /health endpoint)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
   CMD curl -f http://127.0.0.1:3000/health || exit 1
 
 # Set environment for HTTP mode
 ENV MCP_MODE=http
 ENV USE_FIXED_HTTP=true
+ENV PORT=3000
+# Dummy token for build - should be overridden in Railway
+ENV AUTH_TOKEN=replace-me-in-railway-settings
 
 # Optimized entrypoint
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
