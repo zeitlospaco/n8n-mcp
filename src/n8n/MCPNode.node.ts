@@ -19,8 +19,8 @@ export class MCPNode implements INodeType {
     defaults: {
       name: 'MCP',
     },
-    inputs: ['main'],
-    outputs: ['main'],
+    inputs: [{ type: 'main' }],
+    outputs: [{ type: 'main' }],
     credentials: [
       {
         name: 'mcpApi',
