@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.railway"
+
+[deploy]
+startCommand = "npm run start:http"
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3
+healthcheckPath = "/health"
+healthcheckTimeout = 30
