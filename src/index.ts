@@ -17,6 +17,12 @@ export default N8NMCPEngine;
 // Legacy CLI functionality - moved to ./mcp/index.ts
 // This file now serves as the main entry point for library usage
 
+// -----------------------------------------------------
+// ✅ AUTH Middleware hinzufügen (Token-Schutz)
+// -----------------------------------------------------
+import express from "express";
+
+const app = express();
 const AUTH_TOKEN = process.env.AUTH_TOKEN;
 
 app.use((req, res, next) => {
@@ -28,4 +34,12 @@ app.use((req, res, next) => {
     return res.status(401).send("Unauthorized");
   }
   next();
+});
+
+app.get("/health", (_, res) => {
+  res.send("OK");
+});
+
+app.listen(process.env.PORT || 8080, () => {
+  console.log("✅ MCP Server is running with auth enabled");
 });
