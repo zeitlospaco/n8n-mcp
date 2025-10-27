@@ -16,3 +16,16 @@ export default N8NMCPEngine;
 
 // Legacy CLI functionality - moved to ./mcp/index.ts
 // This file now serves as the main entry point for library usage
+
+const AUTH_TOKEN = process.env.AUTH_TOKEN;
+
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!AUTH_TOKEN) {
+    return res.status(500).send("Server missing AUTH_TOKEN");
+  }
+  if (!authHeader || authHeader !== `Bearer ${AUTH_TOKEN}`) {
+    return res.status(401).send("Unauthorized");
+  }
+  next();
+});
