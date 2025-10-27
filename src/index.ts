@@ -1,9 +1,9 @@
 /**
  * n8n-MCP - Model Context Protocol Server for n8n
- * Secure + ChatGPT-OAuth compatible version
+ * Secure + ChatGPT-OAuth compatible version (TypeScript fixed)
  */
 
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 const app = express();
 app.use(express.json());
 
@@ -16,7 +16,7 @@ const PUBLIC_URL = process.env.PUBLIC_URL || "https://n8n-mcp-production-ae6c.up
 ----------------------------------------------------- */
 
 // Discovery endpoint (ChatGPT checks this first)
-app.get("/.well-known/oauth-authorization-server", (_, res) => {
+app.get("/.well-known/oauth-authorization-server", (_: Request, res: Response): void => {
   res.json({
     issuer: PUBLIC_URL,
     authorization_endpoint: `${PUBLIC_URL}/oauth/authorize`,
@@ -27,21 +27,25 @@ app.get("/.well-known/oauth-authorization-server", (_, res) => {
 });
 
 // Simulated authorize step
-app.get("/oauth/authorize", (_, res) => {
+app.get("/oauth/authorize", (_: Request, res: Response): void => {
   res.send("OAuth authorization simulated OK");
 });
 
 // Token exchange step
-app.post("/oauth/token", (req, res) => {
+app.post("/oauth/token", (req: Request, res: Response): void => {
   const { client_id, client_secret } = req.body || {};
 
-  // Optional check – can be skipped if not needed
-  if (process.env.CLIENT_ID && client_id !== process.env.CLIENT_ID)
-    return res.status(401).json({ error: "invalid_client_id" });
-  if (process.env.CLIENT_SECRET && client_secret !== process.env.CLIENT_SECRET)
-    return res.status(401).json({ error: "invalid_client_secret" });
+  // Optional security check
+  if (process.env.CLIENT_ID && client_id !== process.env.CLIENT_ID) {
+    res.status(401).json({ error: "invalid_client_id" });
+    return;
+  }
+  if (process.env.CLIENT_SECRET && client_secret !== process.env.CLIENT_SECRET) {
+    res.status(401).json({ error: "invalid_client_secret" });
+    return;
+  }
 
-  // Return a fake access token (same as AUTH_TOKEN)
+  // Always return a response (fix for TS7030)
   res.json({
     access_token: AUTH_TOKEN,
     token_type: "Bearer",
@@ -52,20 +56,26 @@ app.post("/oauth/token", (req, res) => {
 /* -----------------------------------------------------
    2️⃣ Auth middleware (protects everything below)
 ----------------------------------------------------- */
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
   // Allow OAuth and health endpoints to skip auth
   if (
     req.path.startsWith("/.well-known/") ||
     req.path.startsWith("/oauth") ||
     req.path === "/health"
   ) {
-    return next();
+    next();
+    return;
   }
 
   const authHeader = req.headers.authorization;
-  if (!AUTH_TOKEN) return res.status(500).send("Server missing AUTH_TOKEN");
-  if (!authHeader || authHeader !== `Bearer ${AUTH_TOKEN}`)
-    return res.status(401).send("Unauthorized");
+  if (!AUTH_TOKEN) {
+    res.status(500).send("Server missing AUTH_TOKEN");
+    return;
+  }
+  if (!authHeader || authHeader !== `Bearer ${AUTH_TOKEN}`) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
 
   next();
 });
@@ -73,13 +83,13 @@ app.use((req, res, next) => {
 /* -----------------------------------------------------
    3️⃣ Health endpoint
 ----------------------------------------------------- */
-app.get("/health", (_, res) => {
+app.get("/health", (_: Request, res: Response): void => {
   res.send("OK");
 });
 
 /* -----------------------------------------------------
    4️⃣ Start server
 ----------------------------------------------------- */
-app.listen(PORT, () => {
+app.listen(PORT, (): void => {
   console.log(`✅ MCP Server running on port ${PORT}`);
 });
