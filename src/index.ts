@@ -28,13 +28,16 @@ const AUTH_TOKEN = process.env.AUTH_TOKEN;
 app.use((req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!AUTH_TOKEN) {
-    return res.status(500).send("Server missing AUTH_TOKEN");
+    res.status(500).send("Server missing AUTH_TOKEN");
+    return; // ✅ return hinzugefügt
   }
   if (!authHeader || authHeader !== `Bearer ${AUTH_TOKEN}`) {
-    return res.status(401).send("Unauthorized");
+    res.status(401).send("Unauthorized");
+    return; // ✅ return hinzugefügt
   }
   next();
 });
+
 
 app.get("/health", (_, res) => {
   res.send("OK");
