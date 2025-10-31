@@ -90,3 +90,12 @@ app.get("/", (_, res) => res.send("MCP OAuth Gateway up ✅"));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`✅ Gateway läuft auf Port ${port}`));
+
+
+// Healthcheck endpoint für Railway
+app.get("/health", (_, res) => res.status(200).send("OK"));
+
+// Start server
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`✅ MCP OAuth Gateway läuft auf Port ${port}`));
+
