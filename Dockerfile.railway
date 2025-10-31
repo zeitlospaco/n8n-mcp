@@ -78,4 +78,4 @@ ENV AUTH_TOKEN=replace-me-in-railway-settings
 
 # Optimized entrypoint
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD ["node", "dist/mcp/index.js"]
+CMD ["node", "server.js"]
