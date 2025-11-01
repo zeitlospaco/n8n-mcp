@@ -30,6 +30,18 @@ app.get("/authorize", (req, res) => {
   res.redirect(`https://${AUTH0_DOMAIN}/authorize?${params.toString()}`);
 });
 
+// --- OAuth: /authorize -> Redirect zu Auth0 ---
+app.get("/authorize", (req, res) => {
+  const params = new URLSearchParams({
+    client_id: process.env.AUTH0_CLIENT_ID,
+    response_type: "code",
+    redirect_uri: `${process.env.GATEWAY_BASE_URL}/token`,
+    scope: "openid profile email",
+    state: req.query.state || ""
+  });
+  res.redirect(`https://${process.env.AUTH0_DOMAIN}/authorize?${params.toString()}`);
+});
+
 // --- Token Endpoint (/token) ---
 app.all("/token", async (req, res) => {
   const code = req.method === "POST" ? req.body.code : req.query.code;
@@ -98,4 +110,3 @@ app.get("/health", (_, res) => res.status(200).send("OK"));
 // Start server
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`✅ MCP OAuth Gateway läuft auf Port ${port}`));
-
